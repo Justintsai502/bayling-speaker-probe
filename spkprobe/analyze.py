@@ -35,7 +35,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from spkprobe.common import complete_grid  # noqa: E402
+from spkprobe.common import PROJECT_ROOT, setup_project_cache, complete_grid  # noqa: E402
 
 LAMBDAS = (1e-3, 1e-2, 1e-1, 1.0, 10.0)   # relative to mean(diag(XX^T))
 
@@ -166,13 +166,14 @@ def load_sets(bayling_paths, baseline_path):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--bayling", type=Path, nargs="*", default=[Path("work/features/bayling_silence.npz")])
-    ap.add_argument("--baselines", type=Path, default=Path("work/features/baselines.npz"))
-    ap.add_argument("--out", type=Path, default=Path("work/results"))
+    ap.add_argument("--bayling", type=Path, nargs="*", default=[(PROJECT_ROOT / "work/features/bayling_silence.npz")])
+    ap.add_argument("--baselines", type=Path, default=(PROJECT_ROOT / "work/features/baselines.npz"))
+    ap.add_argument("--out", type=Path, default=(PROJECT_ROOT / "work/results"))
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--no-content", action="store_true", help="skip the sentence probe")
     ap.add_argument("--seed", type=int, default=0)
     cfg = ap.parse_args()
+    setup_project_cache()
 
     bayling = [p for p in cfg.bayling if p.exists()]
     baselines = cfg.baselines if cfg.baselines and cfg.baselines.exists() else None

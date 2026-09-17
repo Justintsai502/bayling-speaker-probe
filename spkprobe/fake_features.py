@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from spkprobe.common import utt_id  # noqa: E402
+from spkprobe.common import PROJECT_ROOT, setup_project_cache, utt_id  # noqa: E402
 
 
 def make(n_spk=8, n_sent=20, n_layers=13, dim=64, peak_layer=8, spk_gain=1.2, sent_gain=1.5, seed=0):
@@ -49,10 +49,11 @@ def make(n_spk=8, n_sent=20, n_layers=13, dim=64, peak_layer=8, spk_gain=1.2, se
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--out", type=Path, default=Path("work/fake"))
+    ap.add_argument("--out", type=Path, default=(PROJECT_ROOT / "work/fake"))
     ap.add_argument("--peak-layer", type=int, default=8)
     ap.add_argument("--seed", type=int, default=0)
     cfg = ap.parse_args()
+    setup_project_cache()
 
     feats, ecapa, utts, spk, sent = make(peak_layer=cfg.peak_layer, seed=cfg.seed)
     cfg.out.mkdir(parents=True, exist_ok=True)

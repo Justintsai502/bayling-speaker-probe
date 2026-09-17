@@ -11,6 +11,11 @@
 #   SMOKE=1             2 speakers x 3 sentences, first 6 utterances only
 set -euo pipefail
 
+# everything (outputs, logs, model caches) stays inside the project
+cd "$(dirname "$0")/.."
+mkdir -p work/logs
+exec > >(tee -a work/logs/run_server.log) 2>&1
+
 TTS_PY=${TTS_PY:-python}
 PROBE_PY=${PROBE_PY:-python}
 MODELS=${MODELS:-models}

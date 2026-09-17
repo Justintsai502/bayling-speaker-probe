@@ -28,7 +28,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from spkprobe.common import read_jsonl, read_sentences, utt_id, write_jsonl  # noqa: E402
+from spkprobe.common import PROJECT_ROOT, setup_project_cache, read_jsonl, read_sentences, utt_id, write_jsonl  # noqa: E402
 
 
 # ---------------------------------------------------------------- prompts
@@ -66,8 +66,8 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--voices", type=Path, default=None)
     ap.add_argument("--prompt-manifest", type=Path, default=None)
-    ap.add_argument("--sentences", type=Path, default=Path("data/harvard_sentences.txt"))
-    ap.add_argument("--out", type=Path, default=Path("work/tts"))
+    ap.add_argument("--sentences", type=Path, default=(PROJECT_ROOT / "data/harvard_sentences.txt"))
+    ap.add_argument("--out", type=Path, default=(PROJECT_ROOT / "work/tts"))
     ap.add_argument("--model", default="Qwen/Qwen3-TTS-12Hz-1.7B-Base")
     ap.add_argument("--language", default="English")
     ap.add_argument("--max-speakers", type=int, default=0, help="0 = all")
@@ -86,6 +86,7 @@ def main():
     ap.add_argument("--dry-run", action="store_true",
                     help="print the plan and write the manifest without loading the model")
     cfg = ap.parse_args()
+    setup_project_cache()
 
     if not cfg.voices and not cfg.prompt_manifest:
         raise SystemExit("give --voices and/or --prompt-manifest")

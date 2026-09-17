@@ -24,19 +24,20 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from spkprobe.common import load_audio, read_jsonl, resample, trim_silence  # noqa: E402
+from spkprobe.common import PROJECT_ROOT, setup_project_cache, load_audio, read_jsonl, resample, trim_silence  # noqa: E402
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--manifest", type=Path, default=Path("work/tts/manifest.kept.jsonl"))
+    ap.add_argument("--manifest", type=Path, default=(PROJECT_ROOT / "work/tts/manifest.kept.jsonl"))
     ap.add_argument("--tts-dir", type=Path, default=None)
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--skip", nargs="*", default=[], choices=["ecapa", "mimi"])
     ap.add_argument("--limit", type=int, default=0)
-    ap.add_argument("--out", type=Path, default=Path("work/features/baselines.npz"))
+    ap.add_argument("--out", type=Path, default=(PROJECT_ROOT / "work/features/baselines.npz"))
     cfg = ap.parse_args()
+    setup_project_cache()
 
     from spkprobe.encoders import ECAPA_SR, MIMI_SR, ecapa_embed, load_ecapa, load_mimi, mimi_features
 

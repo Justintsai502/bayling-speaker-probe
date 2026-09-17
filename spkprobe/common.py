@@ -7,10 +7,41 @@ Audio deps (lazy): soundfile, and soxr or scipy for resampling
 
 import json
 import math
+import os
 from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+CACHE_DIR = PROJECT_ROOT / "cache"
+
+
+# ---------------------------------------------------------------- project-local caches
+
+def setup_project_cache():
+    """Point every model/download cache into <project>/cache.
+
+    Must run before torch / transformers / qwen_tts / speechbrain are imported,
+    since they read these variables at import time. Overrides values inherited
+    from the shell (e.g. HF_HOME in ~/.bashrc) so nothing is written outside
+    the project.
+    """
+    dirs = {
+        "HF_HOME": CACHE_DIR / "huggingface",
+        "TORCH_HOME": CACHE_DIR / "torch",
+        "XDG_CACHE_HOME": CACHE_DIR / "xdg",
+        "MPLCONFIGDIR": CACHE_DIR / "matplotlib",
+    }
+    for var, path in dirs.items():
+        path.mkdir(parents=True, exist_ok=True)
+        old = os.environ.get(var)
+        if old and Path(old).resolve() != path:
+            print(f"cache: {var} {old} -> {path}")
+        os.environ[var] = str(path)
+    # an explicit HF_HUB_CACHE / TRANSFORMERS_CACHE would bypass HF_HOME
+    for var in ("HF_HUB_CACHE", "HUGGINGFACE_HUB_CACHE", "TRANSFORMERS_CACHE"):
+        os.environ.pop(var, None)
 
 
 # ---------------------------------------------------------------- manifests

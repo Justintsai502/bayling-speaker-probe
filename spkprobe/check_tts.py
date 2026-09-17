@@ -31,7 +31,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from spkprobe.common import load_audio, read_jsonl, trim_silence, write_jsonl  # noqa: E402
+from spkprobe.common import PROJECT_ROOT, setup_project_cache, load_audio, read_jsonl, trim_silence, write_jsonl  # noqa: E402
 
 WORD_RE = re.compile(r"[a-z']+")
 
@@ -87,7 +87,7 @@ def centroid_loo_accuracy(emb, labels):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--tts-dir", type=Path, default=Path("work/tts"))
+    ap.add_argument("--tts-dir", type=Path, default=(PROJECT_ROOT / "work/tts"))
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--min-wps", type=float, default=1.2)
     ap.add_argument("--max-wps", type=float, default=5.0)
@@ -98,6 +98,7 @@ def main():
     ap.add_argument("--asr-model", default="openai/whisper-large-v3")
     ap.add_argument("--max-wer", type=float, default=0.2)
     cfg = ap.parse_args()
+    setup_project_cache()
 
     from spkprobe.encoders import ECAPA_SR, ecapa_embed, load_ecapa
 

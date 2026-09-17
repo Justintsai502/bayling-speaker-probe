@@ -16,6 +16,10 @@ MIMI_SR = 24000
 # ---------------------------------------------------------------- ECAPA
 
 def load_ecapa(device="cuda", source="speechbrain/spkrec-ecapa-voxceleb", savedir=None):
+    from spkprobe.common import CACHE_DIR
+
+    # speechbrain otherwise writes pretrained_models/ into the current directory
+    savedir = savedir or str(CACHE_DIR / "speechbrain" / source.split("/")[-1])
     try:
         from speechbrain.inference.speaker import EncoderClassifier  # speechbrain >= 1.0
     except ImportError:

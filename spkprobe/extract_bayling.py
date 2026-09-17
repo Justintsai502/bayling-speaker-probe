@@ -43,7 +43,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from spkprobe.common import load_audio, read_jsonl, trim_silence  # noqa: E402
+from spkprobe.common import PROJECT_ROOT, setup_project_cache, load_audio, read_jsonl, trim_silence  # noqa: E402
 
 SR = 16000
 FRAME_S = 0.08          # GLM speech tokenizer: 12.5 Hz
@@ -193,13 +193,13 @@ class HiddenExtractor:
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--manifest", type=Path, default=Path("work/tts/manifest.kept.jsonl"))
+    ap.add_argument("--manifest", type=Path, default=(PROJECT_ROOT / "work/tts/manifest.kept.jsonl"))
     ap.add_argument("--tts-dir", type=Path, default=None,
                     help="root for relative wav paths (default: manifest's directory)")
     ap.add_argument("--bayling-repo", type=Path, default=None,
                     help="path to a BayLing-Duplex checkout if it is not pip-installed")
-    ap.add_argument("--model-path", type=Path, default=Path("models/bayling_duplex_model"))
-    ap.add_argument("--speech-tokenizer-path", type=Path, default=Path("models/speech_tokenizer"))
+    ap.add_argument("--model-path", type=Path, default=(PROJECT_ROOT / "models/bayling_duplex_model"))
+    ap.add_argument("--speech-tokenizer-path", type=Path, default=(PROJECT_ROOT / "models/speech_tokenizer"))
     ap.add_argument("--interleave-ratio", default="10:5:10")
     ap.add_argument("--context", choices=["silence", "greedy", "user_only"], default="silence")
     ap.add_argument("--lead-blocks", type=int, default=2, help="silent blocks before speech")
@@ -210,12 +210,13 @@ def main():
     ap.add_argument("--limit", type=int, default=0, help="first N utterances only (smoke test)")
     ap.add_argument("--out", type=Path, default=None)
     cfg = ap.parse_args()
+    setup_project_cache()
 
     rows = read_jsonl(cfg.manifest)
     if cfg.limit:
         rows = rows[:cfg.limit]
     root = cfg.tts_dir or cfg.manifest.parent
-    out = cfg.out or Path("work/features") / f"bayling_{cfg.context}.npz"
+    out = cfg.out or (PROJECT_ROOT / "work/features") / f"bayling_{cfg.context}.npz"
     out.parent.mkdir(parents=True, exist_ok=True)
 
     if cfg.bayling_repo:

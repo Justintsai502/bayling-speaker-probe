@@ -1,6 +1,9 @@
 work/
+cache/
+models/
 __pycache__/
 *.npz
+*.log
 
 # voice prompts stay local (may be third-party voices)
 voices/*

@@ -65,6 +65,16 @@ Stage 2 filters out clips that would break the control:
 
 It also prints whether ECAPA can tell the cloned voices apart. If it cannot, the voices collapsed and the probe has nothing to find.
 
+## Everything stays inside the project
+
+| folder | contents |
+|---|---|
+| `work/` | TTS audio, manifests, features, results, logs (`work/logs/`) |
+| `cache/` | Hugging Face / torch / speechbrain downloads (Qwen3-TTS, Whisper, ECAPA, Mimi) |
+| `models/` | BayLing-Duplex checkpoint and GLM speech tokenizer |
+
+Every script sets `HF_HOME`, `TORCH_HOME`, `XDG_CACHE_HOME` and `MPLCONFIGDIR` to `cache/` on start, overriding values from `~/.bashrc`. Default paths are resolved from the project root, not the current directory. All three folders are git-ignored.
+
 ## Setup (server)
 
 ```bash
