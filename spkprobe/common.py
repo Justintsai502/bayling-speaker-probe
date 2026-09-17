@@ -54,11 +54,18 @@ def utt_id(speaker, sentence_id, take=0):
 # ---------------------------------------------------------------- audio
 
 def load_audio(path, sr=None):
-    """Load mono float32 audio; resample to `sr` when given."""
-    import soundfile as sf
+    """Load mono float32 audio; resample to `sr` when given.
 
-    x, sr_in = sf.read(str(path), dtype="float32", always_2d=True)
-    x = x.mean(axis=1)
+    soundfile first; librosa (audioread/ffmpeg) for formats it cannot open, e.g. mp3
+    on an old libsndfile.
+    """
+    try:
+        import soundfile as sf
+        x, sr_in = sf.read(str(path), dtype="float32", always_2d=True)
+        x = x.mean(axis=1)
+    except Exception:
+        import librosa
+        x, sr_in = librosa.load(str(path), sr=None, mono=True)
     if sr is not None and sr != sr_in:
         x = resample(x, sr_in, sr)
         sr_in = sr

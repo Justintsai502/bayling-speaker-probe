@@ -6,7 +6,7 @@ Every speaker reads every sentence (same text, different voice), so a probe
 cannot use content to guess the speaker.
 
 Voice prompts, either:
-  --voices DIR               DIR/<speaker>.wav + DIR/<speaker>.txt (exact transcript)
+  --voices DIR               DIR/<speaker>.{wav,flac,mp3,m4a,ogg} + DIR/<speaker>.txt (exact transcript)
                              a missing .txt falls back to x-vector-only cloning
   --prompt-manifest FILE     manifest.jsonl from voice-clone-prompts/build_prompts.py
                              (first prompt per speaker is used)
@@ -33,15 +33,18 @@ from spkprobe.common import read_jsonl, read_sentences, utt_id, write_jsonl  # n
 
 # ---------------------------------------------------------------- prompts
 
+AUDIO_EXTS = (".wav", ".flac", ".mp3", ".m4a", ".ogg")
+
 def collect_prompts(voices=None, prompt_manifest=None):
     """Return [{speaker, ref_wav, ref_text or None}] sorted by speaker."""
     prompts = {}
     if voices:
         vdir = Path(voices)
-        for wav in sorted(vdir.glob("*.wav")):
-            txt = wav.with_suffix(".txt")
-            text = txt.read_text(encoding="utf-8").strip() if txt.exists() else None
-            prompts[wav.stem] = {"speaker": wav.stem, "ref_wav": str(wav), "ref_text": text or None}
+        for ext in reversed(AUDIO_EXTS):      # earlier extensions win when a stem has several
+            for wav in sorted(vdir.glob(f"*{ext}")):
+                txt = wav.with_suffix(".txt")
+                text = txt.read_text(encoding="utf-8").strip() if txt.exists() else None
+                prompts[wav.stem] = {"speaker": wav.stem, "ref_wav": str(wav), "ref_text": text or None}
     if prompt_manifest:
         root = Path(prompt_manifest).parent
         for r in read_jsonl(prompt_manifest):
