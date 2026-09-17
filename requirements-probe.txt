@@ -1,0 +1,8 @@
+# Stages 2-5. BayLing-Duplex itself: git clone https://github.com/BayLing-Models/BayLing-Duplex && pip install -e BayLing-Duplex
+# (its requirements.txt brings torch, torchaudio, transformers>=4.45, scipy, etc.)
+numpy
+scipy
+soundfile
+speechbrain>=1.0
+transformers>=4.45   # MimiModel, Whisper ASR for check_tts --asr
+matplotlib
