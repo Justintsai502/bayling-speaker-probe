@@ -96,6 +96,8 @@ def main():
                     help="ECAPA cosine to the voice prompt; check the printed distribution before trusting it")
     ap.add_argument("--asr", action="store_true", help="also run Whisper and filter on WER")
     ap.add_argument("--asr-model", default="openai/whisper-large-v3")
+    ap.add_argument("--asr-language", default="en",
+                    help="force the ASR language; empty string = let Whisper detect it")
     ap.add_argument("--max-wer", type=float, default=0.2)
     cfg = ap.parse_args()
     setup_project_cache()
@@ -105,10 +107,12 @@ def main():
     rows = read_jsonl(cfg.tts_dir / "manifest.jsonl")
     ecapa = load_ecapa(cfg.device)
 
-    asr = None
+    asr, asr_kwargs = None, {}
     if cfg.asr:
         from transformers import pipeline
         asr = pipeline("automatic-speech-recognition", model=cfg.asr_model, device=cfg.device)
+        if cfg.asr_language:
+            asr_kwargs = {"language": cfg.asr_language, "task": "transcribe"}
 
     ref_cache = {}
     embs, results = [], []
@@ -137,7 +141,9 @@ def main():
         if sim < cfg.min_ref_sim:
             why.append("ref_sim")
         if asr is not None:
-            hyp = asr({"raw": speech, "sampling_rate": ECAPA_SR})["text"]
+            # without an explicit language, Whisper detects one per clip and a short
+            # sentence occasionally lands in the wrong one, which inflates WER
+            hyp = asr({"raw": speech, "sampling_rate": ECAPA_SR}, generate_kwargs=asr_kwargs)["text"]
             w = wer(r["text"], hyp)
             res.update(wer=round(w, 3), hyp=hyp.strip())
             if w > cfg.max_wer:
