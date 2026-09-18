@@ -24,6 +24,7 @@ Model deps (lazy): torch, soundfile, speechbrain; transformers for --asr
 
 import argparse
 import re
+import time
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -116,7 +117,12 @@ def main():
 
     ref_cache = {}
     embs, results = [], []
-    for r in rows:
+    t0 = time.time()
+    for i, r in enumerate(rows):
+        if i and (i % 25 == 0 or i + 1 == len(rows)):
+            rate = (time.time() - t0) / i
+            print(f"{i}/{len(rows)}  {rate:.2f}s/clip  eta {(len(rows) - i) * rate / 60:.1f} min",
+                  flush=True)
         x, _ = load_audio(cfg.tts_dir / r["wav"], sr=ECAPA_SR)
         speech, _, _ = trim_silence(x, ECAPA_SR)
         dur = len(speech) / ECAPA_SR
