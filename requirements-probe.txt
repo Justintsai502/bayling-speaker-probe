@@ -7,3 +7,4 @@ librosa        # mp3 voice prompts
 speechbrain>=1.0
 transformers>=4.45   # MimiModel, Whisper ASR for check_tts --asr
 matplotlib
+tiktoken             # GLM-4 tokenizer (BayLing remote code); not in BayLing requirements.txt
