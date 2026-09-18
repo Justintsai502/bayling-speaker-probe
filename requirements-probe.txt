@@ -5,6 +5,6 @@ scipy
 soundfile
 librosa        # mp3 voice prompts
 speechbrain>=1.0
-transformers>=4.45   # MimiModel, Whisper ASR for check_tts --asr
+transformers==4.57.3   # BayLing remote code reads config.max_length, removed in v5; also what its config.json records
 matplotlib
 tiktoken             # GLM-4 tokenizer (BayLing remote code); not in BayLing requirements.txt
